@@ -10,13 +10,13 @@ import com.erisboxx.socialspace.repository.UserRepository;
 import com.erisboxx.socialspace.service.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,13 +42,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getAllPosts( int pageNo, int pageSize,String sortBy, String sortDir, Long receiverId) {
+    public PostResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir, Long receiverId) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
-        Pageable pageable = new Pageable();
-        pageable.g
         PageRequest pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Post> posts = postRepository.findByReceiverId(receiverId, (Pageable) pageable);
+        Page<Post> posts = postRepository.findByReceiverId(receiverId, pageable);
         List<Post> listOfPosts = posts.getContent();
         List<PostDto> content = listOfPosts.stream().map(this::mapToDto).collect(Collectors.toList());
         PostResponse postResponse = new PostResponse();
@@ -63,12 +61,12 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostDto mapToDto(Post post) {
-        PostDto postDto = mapper.map(post, PostDto.class);
-        return postDto;
+        return mapper.map(post, PostDto.class);
     }
 
     private Post mapToEntity(PostDto postDto) {
-        Post post = mapper.map(postDto, Post.class);
-        return post;
+        Post newPost = new Post();
+        newPost.setTextContent(postDto.getTextContent());
+        return newPost;
     }
 }

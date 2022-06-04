@@ -53,9 +53,8 @@ public class AuthController {
 
     @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthResponse> authenticateuser(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response, HttpServletRequest request) {
+    public ResponseEntity<JwtAuthResponse> authenticateUser(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response, HttpServletRequest request) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-        System.out.println(authentication.getDetails());
         String token = tokenProvider.generateToken(authentication);
 
         Cookie cookie = new Cookie("jwt-token", token);
